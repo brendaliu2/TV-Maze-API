@@ -4,7 +4,7 @@ const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
-const altImage = "https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300"
+const altImage = "https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300";
 
 
 /** Given a search term, search for tv shows that match that query.
@@ -25,7 +25,7 @@ async function getShowsByTerm(searchTerm) {
       name: response.show.name,
       summary: response.show.summary,
       image: response.show.image ? response.show.image.medium : altImage
-    }
+    };
   });
 
   // have to use ternary because you can't use if statement here
@@ -86,8 +86,45 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+  const response = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
+  return response.data.map(episode => {
+    return {
+      id: episode.id,
+      name: episode.name,
+      season: episode.season,
+      number: episode.number
+    };
+  });
 
-/** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+}
+
+/** given list episodes, creates markup for each episode and append to DOM */
+
+function populateEpisodes(episodes) {
+  const $episodesList = $('#episodesList');
+  for (let episode of episodes) {
+    const $episode = $(`<li>${episode.name} (season ${episode.season},
+      number ${episode.number})</li>`);
+    $episodesList.append($episode);
+  }
+  $episodesArea.show();
+}
+
+
+async function searchForEpisodesAndDisplay (){
+  const id = "something"
+  const episodes = getEpisodesOfShow(id);
+  populateEpisodes (episodes);
+}
+
+
+$episodeBtn = $('.Show-getEpisodes');
+
+$episodeBtn.on('click', async function (e){
+  e.preventDefault();
+  const $target = $(e.target).closest('.Show').data('show-id');
+  await searchForEpisodesAndDisplay();
+
+})
