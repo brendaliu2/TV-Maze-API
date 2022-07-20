@@ -12,10 +12,11 @@ const $searchForm = $("#searchForm");
  *    (if no image URL given by API, put in a default image URL)
  */
 
-async function getShowsByTerm(searchTerm) {
+async function getShowsByTerm(input) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const showResponse = await axios.get("http://api.tvmaze.com/search/shows"),
-    { params: { q: searchTerm } };
+  const showResponse = await axios.get("http://api.tvmaze.com/search/shows",
+    { params: { q: input } });
+    console.log(showResponse.data);
   return showResponse.data;
   // return [
   //   {
@@ -46,15 +47,15 @@ function populateShows(shows) {
 
   for (let show of shows) {
     const $show = $(
-      `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
+      `<div data-show-id="${show.show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="${show.image.medium}"
-              alt="${show.name} photo"
+              src="${show.show.image.medium}"
+              alt="${show.show.name} photo"
               class="w-25 me-3">
            <div class="media-body">
-             <h5 class="text-primary">${show.name}</h5>
-             <div><small>${show.summary}</small></div>
+             <h5 class="text-primary">${show.show.name}</h5>
+             <div><small>${show.show.summary}</small></div>
              <button class="btn btn-outline-light btn-sm Show-getEpisodes">
                Episodes
              </button>
