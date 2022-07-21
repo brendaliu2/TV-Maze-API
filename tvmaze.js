@@ -3,6 +3,7 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+const $episodesList = $('#episodesList');
 
 const altImage = "https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300";
 
@@ -76,6 +77,7 @@ async function searchForShowAndDisplay() {
   populateShows(shows);
 }
 
+
 $searchForm.on("submit", async function (evt) {
   evt.preventDefault();
   await searchForShowAndDisplay();
@@ -88,6 +90,7 @@ $searchForm.on("submit", async function (evt) {
 
 async function getEpisodesOfShow(id) {
   const response = await axios.get(`http://api.tvmaze.com/shows/${id}/episodes`);
+
   return response.data.map(episode => {
     return {
       id: episode.id,
@@ -103,7 +106,7 @@ async function getEpisodesOfShow(id) {
 /** given list episodes, creates markup for each episode and append to DOM */
 
 function populateEpisodes(episodes) {
-  const $episodesList = $('#episodesList');
+  $episodesList.empty();
   for (let episode of episodes) {
     const $episode = $(`<li>${episode.name} (season ${episode.season},
       number ${episode.number})</li>`);
@@ -113,18 +116,24 @@ function populateEpisodes(episodes) {
 }
 
 
-async function searchForEpisodesAndDisplay (){
-  const id = "something"
-  const episodes = getEpisodesOfShow(id);
-  populateEpisodes (episodes);
+/** Handle episode button click: get episodes from API and display.
+ *    Shows episodes area and lists episodes under currently selected show
+ */
+
+//was stuck on syntax for getting show ID
+//needed to move episode area to be under show name rather than under entire
+  //show list
+
+
+async function searchForEpisodesAndDisplay (e){
+  e.preventDefault();
+  const id = $(e.target).closest('.Show').data('show-id');
+  const episodes = await getEpisodesOfShow(id);
+  populateEpisodes(episodes);
+  const mediaClass = $(e.target).closest('.media-body')
+  mediaClass.append($episodesArea);
 }
 
+//had to do event delegation to get episodes to display
 
-$episodeBtn = $('.Show-getEpisodes');
-
-$episodeBtn.on('click', async function (e){
-  e.preventDefault();
-  const $target = $(e.target).closest('.Show').data('show-id');
-  await searchForEpisodesAndDisplay();
-
-})
+$showsList.on('click','.Show-getEpisodes', searchForEpisodesAndDisplay);
